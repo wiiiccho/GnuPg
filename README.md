@@ -69,8 +69,56 @@ sub   rsa3072 1212-01-19 [E] [caduca: 1000-01-19]
 
 
 
+<div align="center">
+  <p>
+### Crear certificado de revocación
+Es un fichero que generamos como medida de seguridad para que ante la situación de haber olvidado la passphrase de nuestra clave privada o si ha sido comprometida, podamos bloquear el uso de la clave pública asociada. Por ello recomiendo generar uno justo después de haber creado nuestro par de claves, aunque podríamos hacerlo en cualquier momento si tenemos acceso a la clave privada y su passphrase.
+
+Al igual que la clave privada hay que mantenerlo en un lugar seguro, pues quién lo posea tiene el poder de cancelar tus claves. No obstante no sirve para cifrar ni descifrar mensajes.
+
+Lo generamos así:
+
+  </p>
+</div>
+
+```sh
+gpg -a --output cert-revocacion.txt --gen-revoke XXXXXXXX
+
+// la opción -a es opcional, para generar el certificado en ascii, para poder guardarlo en 
+un gestor de contraseñas, por ejemplo //XXXXXXXX puede ser el identificador de clave pública 
+o el de la clave privada, ambos identifican el par de claves que se revocaría el certificado.
+```
+
+<div align="center">
+  <p>
+**Revocar el par de claves**
+Para revocar efectivamente un par de claves, simplemente tenemos que importar a nuestro llavero el certificado de revocación y después subir la clave pública al servidor de claves.
+  </p>
+</div>
 
 
+```sh
+gpg --import cert-revocacion.txt
+gpg --send-keys --keyserver urlservidor XXXXXXXX
+```
+
+Una vez hemos revocado una clave, si hacemos un listado veremos que sale indicado del siguiente modo:
+
+```sh
+pub   2048R/XXXXXXXX 2018-12-16 [revoked: 2018-12-17]
+uid                  prueba2 (dd) <prueba2@gmail.com>
+```
 
 
+<div align="center">
+  <p>
+**Exportar y enviar la clave prublica**
+El objetivo de esta pareja de claves es que cualquiera nos pueda mandar un archivo cifrado que solo veremos nosotros y esto se hace difundiendo la clave pública que acabamos de crear (la pública, nunca la privada), para exportarla en un archivo usaremos el comando gpg -output [archivo destino] --export [ID de a clave pública] (la clave pública generada antes tiene la ID 18384645).
+  </p>
+</div>
+
+```sh
+gpg --output CPub.gpg --export 18384645
+ls
+```
 
